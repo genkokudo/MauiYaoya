@@ -1,0 +1,134 @@
+﻿@page "/"
+@using MauiYaoya.Models
+@using MauiYaoya.Services
+@using MudBlazor
+@inject ProductService ProductService
+@implements IDisposable
+
+<MudText Typo="Typo.h5" Class="mb-4">商品一覧</MudText>
+
+<MudCard Class="mb-4">
+    <MudCardContent>
+        <MudText Typo="Typo.h6" Class="mb-2">商品を追加</MudText>
+        <MudGrid>
+            <MudItem xs="12" sm="3">
+                <MudTextField @bind-Value="_newName"
+                              Label="商品名"
+                              Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" sm="3">
+                <MudTextField @bind-Value="_newOrigin"
+                              Label="産地"
+                              Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" sm="2">
+                <MudNumericField @bind-Value="_newPrice"
+                                 Label="価格（円）"
+                                 Variant="Variant.Outlined" />
+            </MudItem>
+            <MudItem xs="12" sm="2">
+                <MudSelect T="ProductCategory"
+                           @bind-Value="_newCategory"
+                           Label="カテゴリ"
+                           Variant="Variant.Outlined">
+                    <MudSelectItem Value="ProductCategory.Vegetable">🥦 野菜</MudSelectItem>
+                    <MudSelectItem Value="ProductCategory.Fruit">🍎 果物</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="2" Class="d-flex align-center">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="AddProduct"
+                           FullWidth="true">追加</MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
+
+<MudTable Items="_products" Hover="true" Striped="true" Elevation="2">
+    <HeaderContent>
+        <MudTh>カテゴリ</MudTh>
+        <MudTh>商品名</MudTh>
+        <MudTh>産地</MudTh>
+        <MudTh>価格</MudTh>
+        <MudTh>操作</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>
+            @if (context.Category == ProductCategory.Vegetable)
+            {
+                <MudChip T="string" Color="Color.Success" Size="Size.Small">🥦 野菜</MudChip>
+            }
+            else
+            {
+                <MudChip T="string" Color="Color.Warning" Size="Size.Small">🍎 果物</MudChip>
+            }
+        </MudTd>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>@context.Origin</MudTd>
+        <MudTd>¥@context.Price.ToString("N0")</MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                           Color="Color.Error"
+                           Size="Size.Small"
+                           OnClick="@(() => RemoveProduct(context.Id))" />
+        </MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>商品がありません。追加してください。</MudText>
+    </NoRecordsContent>
+</MudTable>
+
+@code {
+    private IReadOnlyList<Product> _products = Array.Empty<Product>();
+    private string _newName = "";
+    private string _newOrigin = "";
+    private int _newPrice = 0;
+    private ProductCategory _newCategory = ProductCategory.Vegetable;
+
+    protected override void OnInitialized()
+    {
+        ProductService.OnChanged += OnProductsChanged;
+        RefreshProducts();
+    }
+
+    private void AddProduct()
+    {
+        if (string.IsNullOrWhiteSpace(_newName)) return;
+        ProductService.Add(_newName, _newOrigin, _newPrice, _newCategory);
+        _newName = "";
+        _newOrigin = "";
+        _newPrice = 0;
+        _newCategory = ProductCategory.Vegetable;
+    }
+
+    private void RemoveProduct(Guid id)
+    {
+        ProductService.Remove(id);
+    }
+
+    private async void OnProductsChanged()
+    {
+        await InvokeAsync(() =>
+        {
+            RefreshProducts();
+            StateHasChanged();
+        });
+    }
+
+    private void RefreshProducts()
+    {
+        _products = ProductService.GetAll();
+    }
+
+    public void Dispose()
+    {
+        ProductService.OnChanged -= OnProductsChanged;
+    }
+}
+
+@* @page "/"
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app. *@
