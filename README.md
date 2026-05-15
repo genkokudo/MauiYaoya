@@ -1,4 +1,8 @@
 # MauiYaoya
+商品一覧を表示し、Claudeに「商品の一覧から「りんご」を削除してください。」などの命令をすることでデータ更新が行えるアプリのサンプル。  
+WPF版では問題があったので、Mauiで作り直した。
+
+## 概要
 とりあえずデスクトップアプリで、尚且つMCPによってClaudeから操作することが可能。  
 WPFのように描画スレッド問題もなく、Claudeによるデータ更新がかかった後ちゃんと画面に反映される。  
 画面の見た目も悪くない。
@@ -12,6 +16,8 @@ dotnet new maui-blazor -n MyApp
 あらかじめアプリを起動した状態で、Claudeを起動すること。  
 Claude DesktopはローカルHTTP/SSEに直接対応していないため、mcp-remoteを使用する。  
 mcp-remoteを使用するにはNode.jsのインストールが必要。
+
+動作確認の際には、claude_desktop_config.jsonに以下の記述を追加すること。
 ```
 {
   "mcpServers": {
