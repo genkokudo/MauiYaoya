@@ -59,7 +59,8 @@ public static class MauiProgram
             .WithTools<YaoyaTools>();
 
         var app = webApp.Build();
-        app.MapMcp("/mcp");  // SSEエンドポイント: http://localhost:5000/mcp
+        app.MapMcp();  // → http://localhost:5000/ がStreamable HTTPエンドポイントになる
+
 
         app.Run("http://localhost:5000");
     }

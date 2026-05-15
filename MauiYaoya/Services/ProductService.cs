@@ -66,13 +66,31 @@ public class ProductService
     // ---- JSON永続化 ----
     private void Load()
     {
-        if (!File.Exists(_filePath)) return;
-        try
+        if (File.Exists(_filePath))
         {
-            var json = File.ReadAllText(_filePath);
-            _products = JsonSerializer.Deserialize<List<Product>>(json) ?? new();
+            try
+            {
+                var json = File.ReadAllText(_filePath);
+                var loaded = JsonSerializer.Deserialize<List<Product>>(json);
+                if (loaded != null && loaded.Count > 0)
+                {
+                    _products = loaded;
+                    return;
+                }
+            }
+            catch { }
         }
-        catch { _products = new(); }
+
+        // ファイルが無い or 空っぽの場合はサンプルデータを投入
+        _products = new List<Product>
+    {
+        new() { Name = "トマト",     Origin = "愛知", Price = 150, Category = ProductCategory.Vegetable },
+        new() { Name = "きゅうり",   Origin = "宮崎", Price = 80,  Category = ProductCategory.Vegetable },
+        new() { Name = "玉ねぎ",     Origin = "北海道", Price = 100, Category = ProductCategory.Vegetable },
+        new() { Name = "りんご",     Origin = "青森", Price = 200, Category = ProductCategory.Fruit },
+        new() { Name = "みかん",     Origin = "愛媛", Price = 120, Category = ProductCategory.Fruit },
+    };
+        Save(); 
     }
 
     private void Save()
